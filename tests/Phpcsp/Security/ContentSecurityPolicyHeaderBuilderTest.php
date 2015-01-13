@@ -175,6 +175,17 @@ class ContentSecurityPolicyHeaderBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for the report-uri functionality.
+     */
+    public function testReportUri()
+    {
+        $policy = $this->getNewInstance();
+        $policy->setReportUri('https://example.com/csp/report.php');
+        $headers = $policy->getHeaders(false);
+        $this->assertEquals('report-uri https://example.com/csp/report.php;', $headers[0]['value']);
+    }
+
+    /**
      * Tests the proper encoding of tokens defined by the CSP specification.
      *
      * @throws InvalidDirectiveException
