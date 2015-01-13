@@ -311,7 +311,7 @@ class ContentSecurityPolicyHeaderBuilder
 
     /**
      * @param string $policy
-     * @throws \Exception
+     * @throws InvalidValueException
      */
     public function setReferrerPolicy($policy)
     {
@@ -327,7 +327,7 @@ class ContentSecurityPolicyHeaderBuilder
 
     /**
      * @param string $policy
-     * @throws \Exception
+     * @throws InvalidValueException
      */
     public function setReflectedXssPolicy($policy)
     {
@@ -361,12 +361,12 @@ class ContentSecurityPolicyHeaderBuilder
     /**
      * @param string $directive
      * @param string $nonce
-     * @throws \Exception
+     * @throws InvalidDirectiveException
      */
     public function addNonce($directive, $nonce)
     {
         if (!in_array($directive, $this->allowedDirectives)) {
-            throw new \Exception('Tried to add a CSP nonce for an invalid directive.');
+            throw new InvalidDirectiveException('Tried to add a CSP nonce for an invalid directive.');
         }
 
         if (!(isset($this->directives[$directive]) && is_array($this->directives[$directive]))) {

@@ -226,7 +226,7 @@ class ContentSecurityPolicyHeaderBuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * Tests the nonce functionality.
      *
-     * @throws \Exception
+     * @throws InvalidDirectiveException
      */
     public function testNonce()
     {
