@@ -271,6 +271,51 @@ class ContentSecurityPolicyHeaderBuilder
     ];
 
     /**
+     * Valid value for the 'X-Frame-Options' header. UA's will refuse to load any resource that sets the value of this
+     * header to 'DENY' as part of Frame, iFrame, Object, Applet, or embed tag.
+     *
+     * @var string
+     */
+    const FRAME_OPTION_DENY  = 'DENY';
+
+    /**
+     * Valid value for the 'X-Frame-Options' header. UA's will refuse to load any resource that sets the value of this
+     * header to 'SAMEORIGIN' as part of Frame, iFrame, Object, Applet, or embed tag when the requesting resource is
+     * from a different origin.
+     *
+     * @var string
+     */
+    const FRAME_OPTION_SAME_ORIGIN  = 'SAMEORIGIN';
+
+    /**
+     * Valid value for the 'X-Frame-Options' header. UA's will refuse to load any resource that sets the value of this
+     * header to 'ALLOW-FROM [origin]' as part of Frame, iFrame, Object, Applet, or embed tag when the requesting
+     * resource is not within the specified origin.
+     *
+     * @var string
+     */
+    const FRAME_OPTION_ALLOW_FROM  = 'ALLOW-FROM %s';
+
+    /**
+     * All valid values for the 'X-Frame-Options' header.
+     *
+     * @var array
+     */
+    protected $FrameOptionsValues = [
+        self::FRAME_OPTION_DENY,
+        self::FRAME_OPTION_SAME_ORIGIN,
+        self::FRAME_OPTION_ALLOW_FROM,
+        null
+    ];
+
+    /**
+     * Holds the value for the 'X-Frame-Options' header when set.
+     *
+     * @var string|null
+     */
+    protected $frameOptionsValue = null;
+
+    /**
      * The 'reflected-xss' CSP directive value.
      *
      * @notice Defines the same behaviour as the 'X-XSS-Protection' header
@@ -339,6 +384,31 @@ class ContentSecurityPolicyHeaderBuilder
         }
 
         $this->reflectedXssValue = $policy;
+    }
+
+    /**
+     * @param string $policy
+     * @param string $origin
+     * @throws InvalidValueException
+     */
+    public function setFrameOptions($policy, $origin = '')
+    {
+        if (!in_array($policy, $this->FrameOptionsValues)) {
+            throw new InvalidValueException(sprintf(
+                'Tried to set the X-Frame-Options header to "%s" which is an invalid value.',
+                $policy
+            ));
+        }
+
+        if ($policy == static::FRAME_OPTION_ALLOW_FROM) {
+            $origin = static::extractOrigin($origin);
+
+            if (!$origin) {
+                throw new InvalidOriginException();
+            }
+        }
+
+        $this->frameOptionsValue = trim(sprintf($policy, $origin));
     }
 
     /**
@@ -494,14 +564,13 @@ class ContentSecurityPolicyHeaderBuilder
     {
         $value = $this->getValue();
         if (is_null($value)) {
-            // Ensure there actually are policies
-            return [];
+            $headers = [];
+        } else {
+            $headers[] = [
+                'name' => $this->getHeaderName(),
+                'value' => $value
+            ];
         }
-
-        $headers[] = [
-            'name' => $this->getHeaderName(),
-            'value' => $value
-        ];
 
         if ($includeLegacy) {
             return array_merge($headers, $this->getLegacyHeaders());
@@ -517,7 +586,7 @@ class ContentSecurityPolicyHeaderBuilder
     {
         return array_filter([
             $this->getLegacyXssHeader($this->reflectedXssValue),
-            //$this->getLegacyFrameOptionsHeader()
+            $this->getLegacyFrameOptionsHeader()
         ]);
     }
 
@@ -573,6 +642,32 @@ class ContentSecurityPolicyHeaderBuilder
     }
 
     /**
+     * Extracts the (serialized) origin from a uri or false on failure.
+     *
+     * @param string $uri
+     * @return false|string
+     */
+    public static function extractOrigin($uri)
+    {
+        $parts = parse_url($uri);
+
+        // parse_url returns false when the uri is seriously malformed
+        if (!is_array($parts)) {
+            return false;
+        }
+
+        if (isset($parts['scheme']) && isset($parts['host'])) {
+            if (isset($parts['port'])) {
+                return sprintf('%s://%s:%s', $parts['scheme'], $parts['host'], $parts['port']);
+            } else {
+                return sprintf('%s://%s', $parts['scheme'], $parts['host']);
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $reflectedXssValue
      * @return array
      */
@@ -611,10 +706,13 @@ class ContentSecurityPolicyHeaderBuilder
      */
     private function getLegacyFrameOptionsHeader()
     {
-        // @TODO: Try to find an appropriate value for this header based on the frame-ancestor header.
+        if (is_null($this->frameOptionsValue)) {
+            return [];
+        }
+
         return [
             'name' => $this->legacyFrameOptionsHeader,
-            'value' => 'DENY'
+            'value' => $this->frameOptionsValue
         ];
     }
 }

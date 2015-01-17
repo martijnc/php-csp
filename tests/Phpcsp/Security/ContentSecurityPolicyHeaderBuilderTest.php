@@ -238,6 +238,73 @@ class ContentSecurityPolicyHeaderBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests for ContentSecurityPolicyHeaderBuilder::extractOrigin
+     */
+    public function testExtractOrigin()
+    {
+        $this->assertEquals(
+            'http://www.example.com',
+            ContentSecurityPolicyHeaderBuilder::extractOrigin('http://www.example.com/somepath/file?foo=bar#test')
+        );
+        $this->assertEquals(
+            'http://www.example.com:80',
+            ContentSecurityPolicyHeaderBuilder::extractOrigin('http://www.example.com:80/somepath/file?foo=bar#test')
+        );
+        $this->assertEquals(
+            'https://example.com:443',
+            ContentSecurityPolicyHeaderBuilder::extractOrigin('https://example.com:443/somepath/file?foo=bar#test')
+        );
+    }
+
+    /**
+     * Tests the 'X-Frame-Options' header 'DENY' value.
+     *
+     * @throws InvalidValueException
+     */
+    public function testFrameOptionsValueDeny()
+    {
+        $policy = $this->getNewInstance();
+        $policy->setFrameOptions(ContentSecurityPolicyHeaderBuilder::FRAME_OPTION_DENY);
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals('DENY', $headers[0]['value']);
+    }
+
+    /**
+     * Tests the 'X-Frame-Options' header 'DENY' value.
+     *
+     * @throws InvalidValueException
+     */
+    public function testFrameOptionsValueSameOrigin()
+    {
+        $policy = $this->getNewInstance();
+        $policy->setFrameOptions(ContentSecurityPolicyHeaderBuilder::FRAME_OPTION_SAME_ORIGIN);
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals('SAMEORIGIN', $headers[0]['value']);
+    }
+
+    /**
+     * Tests the 'X-Frame-Options' header 'DENY' value.
+     *
+     * @throws InvalidValueException
+     */
+    public function testFrameOptionsValueAllowFrom()
+    {
+        $policy = $this->getNewInstance();
+        $policy->setFrameOptions(
+            ContentSecurityPolicyHeaderBuilder::FRAME_OPTION_ALLOW_FROM,
+            'http://example.com/path/'
+        );
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals('ALLOW-FROM http://example.com', $headers[0]['value']);
+    }
+
+    /**
      * Creates fresh instances of the helper.
      *
      * @return ContentSecurityPolicyHeaderBuilder

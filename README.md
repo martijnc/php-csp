@@ -175,7 +175,7 @@ $policy->setReportUri('https://example.com/csp/report.php');
 $policy->enforcePolicy(false);
 ```
 ## Legacy header support
-This class also provides support for some legacy headers which are being replaced by CSP. Currently it only has automated support for the `X-XSS-Protection` header which is derived from the reflected-xss CSP directive.
+This class also provides support for some legacy headers which are being replaced by CSP. Currently it has support for the `X-XSS-Protection` and `X-Frame-Options` headers.
 
 ```php
 use Phpcsp\Security\ContentSecurityPolicyHeaderBuilder;
@@ -184,6 +184,9 @@ $policy = new ContentSecurityPolicyHeaderBuilder();
 
 // Enable the browsers xss blocking features
 $policy->setReflectedXssPolicy(ContentSecurityPolicyHeaderBuilder::REFLECTED_XSS_BLOCK);
+
+// Set the 'X-Frame-Options' header
+$policy->setFrameOptions(ContentSecurityPolicyHeaderBuilder::FRAME_OPTION_SAME_ORIGIN);
 
 // Get your CSP headers, including legacy headers
 $headers = $policy->getHeaders(true);
@@ -195,15 +198,17 @@ foreach ($headers as $header) {
 This would result in the following headers:
 
 ```
-array (size=2)
+array (size=3)
   0 => 
     array (size=2)
       'name' => string 'Content-Security-Policy' (length=23)
-      'value' => string 'reflected-xss block;' (length=86)
+      'value' => string 'script-src 'none'; reflected-xss block; report-uri https://example.com/csp/report.php;' (length=86)
   1 => 
     array (size=2)
       'name' => string 'X-XSS-Protection' (length=16)
       'value' => string '1; mode=block' (length=13)
+  2 => 
+    array (size=2)
+      'name' => string 'X-Frame-Options' (length=15)
+      'value' => string 'SAMEORIGIN' (length=10)
 ```
-
-Future versions will include support for the `X-Frame-Options` header.
