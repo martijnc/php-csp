@@ -1,0 +1,22 @@
+{
+  "name": "martijnc/php-csp",
+  "license": "BSD",
+  "description": "Content Security Policy helper for PHP",
+  "keywords": ["library", "Content Security Policy", "PHP", "Security", "XSS", "X-Frame-Options", "X-XSS-Protection"],
+  "homepage": "https://github.com/martijnc/php-csp",
+  "authors": [
+    {
+      "name": "Martijn Croonen",
+      "homepage": "https://github.com/martijnc",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "Phpcsp": "src/"
+    }
+  }
+}
