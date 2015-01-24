@@ -150,6 +150,9 @@ Your HTML should look like this:
 
 The nonce should be random for each request so attackers cannot predict the nonce value.
 
+### Hashes
+If your application requires inline scripts you can serve the SHA256, SHA384, or SHA512 hash of the source as part of the script-src directive in your policy to allow the script to run. This way you don't need to enable unsafe-inline.
+
 ### Violation reports
 CSP gives you the option to receive reports about CSP violations. Each time a page loads a resource that is blocked by your CSP policy, the browser will submit a JSON object to the URL you specified in your policy. In the following example, those report will be send to `https://example.com/csp/report.php`:
 

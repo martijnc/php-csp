@@ -309,6 +309,38 @@ class ContentSecurityPolicyHeaderBuilder
     ];
 
     /**
+     * SHA 256 hash indicator.
+     *
+     * @var string
+     */
+    const HASH_SHA_256 = 'sha256';
+
+    /**
+     * SHA 384 hash indicator.
+     *
+     * @var string
+     */
+    const HASH_SHA_384 = 'sha384';
+
+    /**
+     * SHA 512 hash indicator.
+     *
+     * @var string
+     */
+    const HASH_SHA_512 = 'sha512';
+
+    /**
+     * Supported hash algorithms.
+     *
+     * @var array
+     */
+    protected $hashAlgorithmValues = [
+        self::HASH_SHA_256,
+        self::HASH_SHA_384,
+        self::HASH_SHA_512
+    ];
+
+    /**
      * Holds the value for the 'X-Frame-Options' header when set.
      *
      * @var string|null
@@ -511,6 +543,27 @@ class ContentSecurityPolicyHeaderBuilder
     }
 
     /**
+     * Add a hash value to the script-src.
+     *
+     * @param string $type
+     * @param string $hash
+     * @throws InvalidDirectiveException
+     */
+    public function addHash($type, $hash)
+    {
+        $directive = self::DIRECTIVE_SCRIPT_SRC;
+        if (!(isset($this->directives[$directive]) && is_array($this->directives[$directive]))) {
+            $this->directives[$directive] = [];
+        }
+
+        if (!(isset($this->directives[$directive]['hashes']) && is_array($this->directives[$directive]['hashes']))) {
+            $this->directives[$directive]['hashes'] = [];
+        }
+
+        $this->directives[$directive]['hashes'][$type][] = $hash;
+    }
+
+    /**
      * Returns the CSP header that should be used (enforced mode or report-only mode).
      *
      * @return string
@@ -618,6 +671,15 @@ class ContentSecurityPolicyHeaderBuilder
         if (isset($directive['nonces']) && is_array($directive['nonces'])) {
             foreach ($directive['nonces'] as $nonce) {
                 $expressions[] = sprintf("'nonce-%s'", $nonce);
+            }
+        }
+
+        // Parse the hashes
+        if (isset($directive['hashes']) && is_array($directive['hashes'])) {
+            foreach ($directive['hashes'] as $type => $hashes) {
+                foreach ($hashes as $hash) {
+                    $expressions[] = sprintf("'%s-%s'", $type, base64_encode($hash));
+                }
             }
         }
 

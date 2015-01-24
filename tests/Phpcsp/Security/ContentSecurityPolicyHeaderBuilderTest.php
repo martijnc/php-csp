@@ -305,6 +305,79 @@ class ContentSecurityPolicyHeaderBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for the SHA 256 hashing support.
+     *
+     * @throws InvalidDirectiveException
+     */
+    public function testHashSha256()
+    {
+        $policy = $this->getNewInstance();
+
+        $script = "alert('Hello, world.');";
+
+        $policy->addHash(
+            ContentSecurityPolicyHeaderBuilder::HASH_SHA_256,
+            hash(ContentSecurityPolicyHeaderBuilder::HASH_SHA_256, $script, true)
+        );
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals(
+            'script-src \'sha256-qznLcsROx4GACP2dm0UCKCzCG+HiZ1guq6ZZDob/Tng=\';',
+            $headers[0]['value']
+        );
+    }
+
+    /**
+     * Test for the SHA 384 hashing support.
+     *
+     * @throws InvalidDirectiveException
+     */
+    public function testHashSha384()
+    {
+        $policy = $this->getNewInstance();
+
+        $script = "alert('Hello, world.');";
+
+        $policy->addHash(
+            ContentSecurityPolicyHeaderBuilder::HASH_SHA_384,
+            hash(ContentSecurityPolicyHeaderBuilder::HASH_SHA_384, $script, true)
+        );
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals(
+            'script-src \'sha384-H8BRh8j48O9oYatfu5AZzq6A9RINhZO5H16dQZngK7T62em8MUt1FLm52t+eX6xO\';',
+            $headers[0]['value']
+        );
+    }
+
+    /**
+     * Test for the SHA 512 hashing support.
+     *
+     * @throws InvalidDirectiveException
+     */
+    public function testHashSha512()
+    {
+        $policy = $this->getNewInstance();
+
+        $script = "alert('Hello, world.');";
+
+        $policy->addHash(
+            ContentSecurityPolicyHeaderBuilder::HASH_SHA_512,
+            hash(ContentSecurityPolicyHeaderBuilder::HASH_SHA_512, $script, true)
+        );
+
+        $headers = $policy->getHeaders(true);
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals(
+            'script-src \'sha512-Q2bFTOhEALkN8hOms2FKTDLy7eugP2zFZ1T8LCvX42Fp3WoNr3bjZSAHeOsHrbV1Fu9/A0EzCinRE7Af1ofP' .
+            'rw==\';',
+            $headers[0]['value']
+        );
+    }
+
+    /**
      * Creates fresh instances of the helper.
      *
      * @return ContentSecurityPolicyHeaderBuilder
