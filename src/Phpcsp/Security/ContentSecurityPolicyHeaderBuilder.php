@@ -94,6 +94,13 @@ class ContentSecurityPolicyHeaderBuilder
     const DIRECTIVE_FRAME_ANCESTORS = 'frame-ancestors';
 
     /**
+     * Valid CSP directive name. See http://www.w3.org/TR/CSP2/#directive-frame-src
+     *
+     * @var string
+     */
+    const DIRECTIVE_FRAME_SRC = 'frame-src';
+
+    /**
      * Valid CSP directive name. See http://www.w3.org/TR/CSP2/#directive-img-src
      *
      * @var string
@@ -141,6 +148,7 @@ class ContentSecurityPolicyHeaderBuilder
         self::DIRECTIVE_FONT_SRC,
         self::DIRECTIVE_FORM_ACTION,
         self::DIRECTIVE_FRAME_ANCESTORS,
+        self::DIRECTIVE_FRAME_SRC,
         self::DIRECTIVE_IMG_SRC,
         self::DIRECTIVE_MEDIA_SRC,
         self::DIRECTIVE_OBJECT_SRC,
