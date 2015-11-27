@@ -1,6 +1,6 @@
 {
   "name": "martijnc/php-csp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "BSD",
   "description": "Content Security Policy helper for PHP",
   "keywords": ["library", "Content Security Policy", "PHP", "Security", "XSS", "X-Frame-Options", "X-XSS-Protection"],
