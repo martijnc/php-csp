@@ -284,7 +284,7 @@ class ContentSecurityPolicyHeaderBuilder
      *
      * @var string
      */
-    const FRAME_OPTION_DENY  = 'DENY';
+    const FRAME_OPTION_DENY = 'DENY';
 
     /**
      * Valid value for the 'X-Frame-Options' header. UA's will refuse to load any resource that sets the value of this
@@ -293,7 +293,7 @@ class ContentSecurityPolicyHeaderBuilder
      *
      * @var string
      */
-    const FRAME_OPTION_SAME_ORIGIN  = 'SAMEORIGIN';
+    const FRAME_OPTION_SAME_ORIGIN = 'SAMEORIGIN';
 
     /**
      * Valid value for the 'X-Frame-Options' header. UA's will refuse to load any resource that sets the value of this
@@ -302,7 +302,7 @@ class ContentSecurityPolicyHeaderBuilder
      *
      * @var string
      */
-    const FRAME_OPTION_ALLOW_FROM  = 'ALLOW-FROM %s';
+    const FRAME_OPTION_ALLOW_FROM = 'ALLOW-FROM %s';
 
     /**
      * All valid values for the 'X-Frame-Options' header.
@@ -379,6 +379,16 @@ class ContentSecurityPolicyHeaderBuilder
     protected $reportUri = null;
 
     /**
+     * @var string
+     */
+    protected $upgradeInsecureRequestsDirective = 'upgrade-insecure-requests';
+
+    /**
+     * @var bool
+     */
+    protected $upgradeInsecureRequests = false;
+
+    /**
      * @param bool $enforce
      */
     public function enforcePolicy($enforce)
@@ -449,6 +459,14 @@ class ContentSecurityPolicyHeaderBuilder
         }
 
         $this->frameOptionsValue = trim(sprintf($policy, $origin));
+    }
+
+    /**
+     * @param bool $upgrade
+     */
+    public function setUpgradeInsecureRequests($upgrade)
+    {
+        $this->upgradeInsecureRequests = $upgrade;
     }
 
     /**
@@ -543,7 +561,8 @@ class ContentSecurityPolicyHeaderBuilder
         if (!(
             isset($this->directives[$directive]['expressions'])
             && is_array($this->directives[$directive]['expressions'])
-        )) {
+        )
+        ) {
             $this->directives[$directive]['expressions'] = [];
         }
 
@@ -601,6 +620,10 @@ class ContentSecurityPolicyHeaderBuilder
             $directives[] = sprintf('%s %s', 'reflected-xss', $this->reflectedXssValue);
         }
 
+        if ($this->upgradeInsecureRequests) {
+            $directives[] = $this->upgradeInsecureRequestsDirective;
+        }
+
         if (!is_null($this->referrerValue)) {
             $directives[] = sprintf('%s %s', 'referrer', $this->referrerValue);
         }
@@ -628,7 +651,7 @@ class ContentSecurityPolicyHeaderBuilder
             $headers = [];
         } else {
             $headers[] = [
-                'name' => $this->getHeaderName(),
+                'name'  => $this->getHeaderName(),
                 'value' => $value
             ];
         }
@@ -691,7 +714,7 @@ class ContentSecurityPolicyHeaderBuilder
             }
         }
 
-        return trim(implode(' ', array_map(function($value) {
+        return trim(implode(' ', array_map(function ($value) {
             return $this->encodeDirectiveValue($value);
         }, $expressions)));
     }
@@ -748,21 +771,21 @@ class ContentSecurityPolicyHeaderBuilder
         switch ($reflectedXssValue) {
             case 'allow':
                 $header = [
-                    'name' => $this->legacyXssHeader,
+                    'name'  => $this->legacyXssHeader,
                     'value' => '0'
                 ];
                 break;
 
             case 'filter':
                 $header = [
-                    'name' => $this->legacyXssHeader,
+                    'name'  => $this->legacyXssHeader,
                     'value' => '1'
                 ];
                 break;
 
             case 'block':
                 $header = [
-                    'name' => $this->legacyXssHeader,
+                    'name'  => $this->legacyXssHeader,
                     'value' => '1; mode=block'
                 ];
                 break;
@@ -781,7 +804,7 @@ class ContentSecurityPolicyHeaderBuilder
         }
 
         return [
-            'name' => $this->legacyFrameOptionsHeader,
+            'name'  => $this->legacyFrameOptionsHeader,
             'value' => $this->frameOptionsValue
         ];
     }
