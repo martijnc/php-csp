@@ -1,7 +1,7 @@
 {
   "name": "martijnc/php-csp",
   "version": "1.0.2",
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "description": "Content Security Policy helper for PHP",
   "keywords": ["library", "Content Security Policy", "PHP", "Security", "XSS", "X-Frame-Options", "X-XSS-Protection"],
   "homepage": "https://github.com/martijnc/php-csp",
